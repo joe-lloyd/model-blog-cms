@@ -1,0 +1,28 @@
+services:
+  backend:
+    environment:
+      - DATABASE_URL
+      - PORT=3001
+      - JWT_SECRET
+      - DB_SYNCHRONIZE
+      - ADMIN_EMAIL
+      - ADMIN_PASSWORD
+    build:
+      context: ./model-blog-cms-backend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./model-blog-cms-backend:/app/data
+
+  frontend:
+    environment:
+      - NEXT_PUBLIC_API_URL
+    build:
+      context: ./model-blog-cms-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+
+volumes:
+  db_data:
