@@ -32,7 +32,7 @@ export class PostService {
       // Save each file
       for (const [index, file] of files.entries()) {
         const timestamp = Date.now(); // Timestamp for unique filenames
-        const uniqueFilename = `${timestamp}-${index}-${file.originalname}`;
+        const uniqueFilename = `${timestamp}-${file.originalname}`;
         const filePath = join(uploadDir, uniqueFilename);
 
         // Write the file to the directory
@@ -66,13 +66,15 @@ export class PostService {
     id: string,
     updatePostDto: UpdatePostDto,
     // @ts-ignore
-    files?: Express.Multer.File[], // Accept multiple uploaded files
+    files?: Express.Multer.File[], // Accept multiple files
   ): Promise<Post> {
     const existingPost = await this.findOne(id);
 
     if (!existingPost) {
       throw new Error('Post not found');
     }
+
+    console.log('files: ', files);
 
     const imagePaths = existingPost.images || []; // Keep existing images by default
 
@@ -85,7 +87,7 @@ export class PostService {
       // Save each new file
       for (const [index, file] of files.entries()) {
         const timestamp = Date.now();
-        const uniqueFilename = `${timestamp}-${index}-${file.originalname}`;
+        const uniqueFilename = `${timestamp}-${file.originalname}`;
         const filePath = join(uploadDir, uniqueFilename);
 
         // Write the new file to the directory
@@ -93,19 +95,6 @@ export class PostService {
 
         // Add the new file path to the imagePaths array
         imagePaths.push(`/uploads/images/${uniqueFilename}`);
-      }
-
-      // Optional: If the user wants to replace existing images entirely, clear old images
-      for (const oldImagePath of existingPost.images || []) {
-        const absoluteOldImagePath = join(process.cwd(), oldImagePath);
-        try {
-          await fs.unlink(absoluteOldImagePath);
-        } catch (error) {
-          console.warn(
-            `Failed to delete old image: ${absoluteOldImagePath}`,
-            error,
-          );
-        }
       }
     }
 

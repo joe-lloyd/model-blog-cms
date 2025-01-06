@@ -60,10 +60,6 @@ export class PostController {
     @Body() createPostDto: CreatePostDto,
     @Req() req,
   ): Promise<any> {
-    console.log('process.cwd(): ', process.cwd());
-    console.log('req.user: ', req.user);
-    console.log('files: ', files);
-    console.log('createPostDto: ', createPostDto);
     const images = files?.images || [];
     return this.postService.create(createPostDto, req.user.userId, images);
   }
@@ -87,18 +83,28 @@ export class PostController {
       properties: {
         title: { type: 'string', example: 'Updated Title' },
         content: { type: 'string', example: 'Updated Content' },
-        image: { type: 'string', format: 'binary' },
+        images: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
       },
     },
   })
-  @UseInterceptors(FileInterceptor('image'))
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'images', maxCount: 10 }, // Allow up to 10 images
+    ]),
+  )
   async update(
     @Param('id') id: string,
     // @ts-ignore
-    @UploadedFile() file: Express.Multer.File, // Handle file uploads
+    @UploadedFiles() files: { images?: Express.Multer.File[] },
     @Body() updatePostDto: UpdatePostDto,
   ): Promise<any> {
-    return this.postService.update(id, updatePostDto, file);
+    console.log('files: ', files);
+    console.log('updatePostDto: ', updatePostDto);
+    const images = files?.images || [];
+    return this.postService.update(id, updatePostDto, images);
   }
 
   @Delete(':id')

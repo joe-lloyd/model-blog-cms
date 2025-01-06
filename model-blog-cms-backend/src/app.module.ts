@@ -17,7 +17,7 @@ import { join } from 'path';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         type: 'sqlite',
-        database: '/app/data/db.sqlite',
+        database: 'data/db.sqlite',
         entities: [User, Post],
         synchronize: configService.get<boolean>('DB_SYNCHRONIZE', false),
       }),
